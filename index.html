@@ -3,81 +3,564 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💰👿 Monthly Money Menace - Track & Cancel Subscriptions</title>
+    <title>💰 Monthly Money Menace | Kill Your Subscriptions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        * { font-family: system-ui, -apple-system, sans-serif; }
-        body { max-width: 1200px; margin: 0 auto; padding: 20px; background: #1a1a2e; color: white; }
-        .card { background: #16213e; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
-        button { background: #e94560; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 16px; transition: all 0.3s; }
-        button:hover { background: #ff6b6b; transform: scale(1.02); }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; }
-        .badge { background: #e94560; padding: 4px 8px; border-radius: 20px; font-size: 12px; }
-        .badge-zar { background: #00b894; padding: 4px 8px; border-radius: 20px; font-size: 11px; margin-left: 8px; }
-        .cancel-link { background: #dc3545; color: white; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; transition: all 0.3s; display: inline-block; }
-        .cancel-link:hover { background: #c82333; transform: scale(1.02); text-decoration: none; }
-        .login-btn { background: #4285f4; font-size: 20px; padding: 12px 30px; text-decoration: none; color: white; border-radius: 8px; display: inline-block; transition: all 0.3s; }
-        .login-btn:hover { background: #5a9cff; transform: scale(1.02); }
-        .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #fff; border-radius: 50%; border-top-color: #e94560; animation: spin 0.8s linear infinite; margin-right: 10px; vertical-align: middle; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .savings-highlight { color: #00b894; font-size: 24px; font-weight: bold; }
-        .currency-note { background: #0f3460; padding: 10px; border-radius: 8px; font-size: 12px; margin-top: 20px; text-align: center; }
-        h1 { margin: 0; font-size: 2em; }
-        .sub-header { color: #a0a0a0; margin-top: 5px; }
-        .merchant-domain { font-size: 11px; color: #888; margin-top: 4px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 50%, #dee2e6 100%);
+            min-height: 100vh;
+            color: #1a1a2e;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated white gradient orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            z-index: 0;
+            pointer-events: none;
+            animation: floatOrb 20s infinite ease-in-out;
+        }
+
+        @keyframes floatOrb {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(100px, -50px) scale(1.1); }
+            50% { transform: translate(-50px, 100px) scale(0.9); }
+            75% { transform: translate(50px, -100px) scale(1.05); }
+        }
+
+        .orb-1 { 
+            background: rgba(255, 255, 255, 0.8);
+            width: 400px; 
+            height: 400px; 
+            top: -200px; 
+            right: -100px;
+            animation-duration: 25s;
+        }
+        
+        .orb-2 { 
+            background: rgba(255, 255, 255, 0.6);
+            width: 500px; 
+            height: 500px; 
+            bottom: -250px; 
+            left: -150px;
+            animation-duration: 30s;
+            animation-delay: -5s;
+        }
+        
+        .orb-3 { 
+            background: rgba(255, 255, 255, 0.7);
+            width: 300px; 
+            height: 300px; 
+            top: 50%; 
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-duration: 20s;
+            animation-delay: -10s;
+        }
+
+        /* Main container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Glassmorphism card - white version */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 28px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            padding: 32px;
+            margin-bottom: 24px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Header styles */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .title {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 50%, #1a1a2e 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 12px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #6c757d;
+        }
+
+        /* Login button */
+        .login-btn {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+            color: white;
+            padding: 14px 42px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            gap: 16px;
+        }
+
+        /* Scan button */
+        .scan-btn {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+            color: white;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .scan-btn:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            gap: 14px;
+        }
+
+        .scan-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Table styles */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px;
+            background: #f8f9fa;
+            font-weight: 700;
+            color: #1a1a2e;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        td {
+            padding: 18px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+
+        tr {
+            animation: fadeInUp 0.5s ease-out backwards;
+            animation-delay: calc(var(--index, 0) * 0.05s);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        tr:hover td {
+            background: #f8f9fa;
+            transform: scale(1.01);
+        }
+
+        /* Subscription name */
+        .sub-name {
+            font-weight: 800;
+            font-size: 1rem;
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sub-name i {
+            color: #e94560;
+            font-size: 1.2rem;
+        }
+
+        .sub-domain {
+            font-size: 0.7rem;
+            color: #adb5bd;
+            margin-top: 4px;
+            margin-left: 28px;
+        }
+
+        /* Badges */
+        .badge {
+            background: linear-gradient(135deg, #ffe0e0, #ffc9c9);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+            color: #e94560;
+        }
+
+        .badge-zar {
+            background: linear-gradient(135deg, #d4fcff, #c0e8ef);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-left: 8px;
+            font-weight: 700;
+            color: #00b894;
+        }
+
+        /* Cancel button */
+        .cancel-btn {
+            background: #fff;
+            color: #dc3545;
+            padding: 8px 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1.5px solid #dc3545;
+        }
+
+        .cancel-btn:hover {
+            background: #dc3545;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+            border-color: #dc3545;
+        }
+
+        /* Stats cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 28px;
+            padding: 28px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            animation: scaleIn 0.6s ease-out backwards;
+            animation-delay: calc(var(--stat-index, 0) * 0.1s);
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            color: #1a1a2e;
+            margin-bottom: 12px;
+            display: inline-block;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .stat-value {
+            font-size: 2.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-top: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e9ecef;
+            border-radius: 50%;
+            border-top-color: #1a1a2e;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Suggestions card */
+        .suggestions-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+            border-radius: 28px;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.4s ease;
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(26, 26, 46, 0.3); }
+            50% { box-shadow: 0 8px 35px rgba(26, 26, 46, 0.5); }
+        }
+
+        .suggestions-card h3, .suggestions-card p {
+            color: white;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            animation: shake 3s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            75% { transform: rotate(-5deg); }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #adb5bd;
+            font-size: 0.8rem;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            body { padding: 10px; }
-            table { font-size: 12px; }
-            th, td { padding: 8px; }
-            .cancel-link { padding: 4px 8px; font-size: 11px; }
+            .title { font-size: 2rem; }
+            .glass-card { padding: 20px; }
+            td, th { padding: 12px 10px; font-size: 0.85rem; }
+            .cancel-btn { padding: 6px 12px; font-size: 0.75rem; }
+            .stat-value { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
-    <div class="card" style="text-align: center;">
-        <h1>💰👿 Monthly Money Menace</h1>
-        <p class="sub-header">Find hidden subscriptions hiding in your inbox | All currencies converted to Rands (ZAR)</p>
-        
-        <div id="auth-section">
-            <a href="/auth" class="login-btn">🔐 Login with Google</a>
-        </div>
-    </div>
 
-    <div id="dashboard" style="display: none;">
-        <div class="card">
-            <h2>📊 Your Subscriptions</h2>
-            <button id="refreshBtn">🔄 Scan Again</button>
-            <div id="loading" style="display: none; margin-top: 10px;">
-                <span class="loading-spinner"></span> Scanning your emails...
+    <!-- Animated white orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="title">
+                <i class="fas fa-skull"></i> Monthly Money Menace <i class="fas fa-dragon"></i>
+            </h1>
+            <p class="subtitle">Track. Detect. Cancel. Save your money from subscription demons.</p>
+        </div>
+
+        <!-- Auth Section -->
+        <div id="auth-section" class="glass-card" style="text-align: center;">
+            <div style="margin-bottom: 20px;">
+                <i class="fas fa-envelope" style="font-size: 3rem; color: #1a1a2e; opacity: 0.3;"></i>
             </div>
-            <div style="overflow-x: auto;">
-                <table id="subsTable">
-                    <thead>
-                        <tr>
-                            <th>Subscription</th>
-                            <th>Original Amount</th>
-                            <th>In ZAR (Rands)</th>
-                            <th>Occurrences</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="subsBody"></tbody>
-                </table>
+            <h2 style="margin-bottom: 16px; color: #1a1a2e;">Ready to kill your subscriptions?</h2>
+            <p style="margin-bottom: 24px; color: #6c757d;">Connect your Gmail and let the menace find every recurring charge.</p>
+            <a href="/auth" class="login-btn">
+                <i class="fab fa-google"></i> Connect Gmail
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" style="display: none;">
+            <!-- Stats Grid -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card" style="--stat-index: 0">
+                    <div class="stat-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <div class="stat-value" id="totalSubs">0</div>
+                    <div class="stat-label">Active Subscriptions</div>
+                </div>
+                <div class="stat-card" style="--stat-index: 1">
+                    <div class="stat-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="stat-value" id="monthlySpend">R0</div>
+                    <div class="stat-label">Monthly Spend</div>
+                </div>
+                <div class="stat-card" style="--stat-index: 2">
+                    <div class="stat-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="stat-value" id="potentialSavings">R0</div>
+                    <div class="stat-label">Potential Savings</div>
+                </div>
+            </div>
+
+            <!-- Subscriptions Table -->
+            <div class="glass-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+                    <h2 style="color: #1a1a2e;"><i class="fas fa-list-ul"></i> Your Subscription Hitlist</h2>
+                    <button class="scan-btn" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i> Scan Emails
+                    </button>
+                </div>
+                <div id="loading" style="display: none; text-align: center; padding: 60px;">
+                    <div class="loading-spinner"></div>
+                    <p style="margin-top: 20px; color: #6c757d;">Scanning your emails for subscription demons...</p>
+                </div>
+                <div class="table-wrapper">
+                    <table id="subsTable">
+                        <thead>
+                            <tr>
+                                <th>Subscription</th>
+                                <th>Original</th>
+                                <th>ZAR (Rands)</th>
+                                <th>Frequency</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Smart Suggestions -->
+            <div id="suggestionsCard"></div>
+
+            <!-- Currency Note -->
+            <div class="glass-card" style="text-align: center; background: rgba(255, 255, 255, 0.9);">
+                <i class="fas fa-chart-line" style="color: #1a1a2e;"></i> Live Exchange Rates: 
+                1 USD = R18.50 | 1 EUR = R20.00 | 1 GBP = R23.50 | 1 YER = R0.074
             </div>
         </div>
 
-        <div class="card" id="savingsCard">
-            <h3>💡 Smart Cancellation Suggestions</h3>
-            <div id="suggestions"></div>
-        </div>
-
-        <div class="currency-note">
-            🌍 <strong>Currency Converter</strong> | USD (R18.50) | EUR (R20.00) | GBP (R23.50) | YER (R0.074) | All amounts shown in South African Rands (ZAR)
+        <div class="footer">
+            <i class="fas fa-shield-alt"></i> Your data is safe. Read-only access. No storage of email content.
         </div>
     </div>
 
     <script>
+        // Animate stats counter
+        function animateValue(element, start, end, duration) {
+            const startTime = performance.now();
+            const updateCounter = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = start + (end - start) * progress;
+                element.textContent = typeof end === 'number' ? 
+                    (end > 1000 ? 'R' + Math.floor(current) : Math.floor(current)) : 
+                    'R' + Math.floor(current);
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                }
+            };
+            requestAnimationFrame(updateCounter);
+        }
+
         async function loadSubscriptions() {
             const res = await fetch('/api/subscriptions');
             const subs = await res.json();
@@ -91,13 +574,9 @@
                 document.getElementById('dashboard').style.display = 'block';
                 await scanEmails();
             } else {
-                // Check if we have any subscriptions file
-                if (subs.length === 0 && !window.location.search.includes('success')) {
-                    // Still show dashboard but with empty state
-                    document.getElementById('auth-section').style.display = 'none';
-                    document.getElementById('dashboard').style.display = 'block';
-                    renderSubscriptions(subs);
-                }
+                document.getElementById('auth-section').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                renderSubscriptions(subs);
             }
         }
 
@@ -124,61 +603,79 @@
             let totalMonthly = 0;
             
             if (subs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">✨ No subscriptions found yet. Click "Scan Again" to check your emails! ✨</td></tr>';
-                const suggestionsDiv = document.getElementById('suggestions');
-                suggestionsDiv.innerHTML = `
-                    <p>📭 No active subscriptions detected yet.</p>
-                    <p>💡 <strong>Tip:</strong> Send yourself a test receipt email or scan again after making a subscription payment.</p>
-                    <p>🔍 Make sure you have emails containing words like "receipt", "invoice", "monthly", or "subscription".</p>
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 80px;">
+                            <div class="empty-state">
+                                <div class="empty-icon"><i class="fas fa-ghost"></i></div>
+                                <h3 style="color: #1a1a2e;">No subscriptions found... yet!</h3>
+                                <p style="margin-top: 12px; color: #6c757d;">Click "Scan Emails" to find hidden subscriptions in your inbox.</p>
+                            </div>
+                        </td>
+                    </tr>
                 `;
-                document.getElementById('savingsCard').style.display = 'block';
+                document.getElementById('suggestionsCard').innerHTML = `
+                    <div class="glass-card" style="text-align: center;">
+                        <i class="fas fa-search" style="font-size: 3rem; color: #1a1a2e; opacity: 0.3;"></i>
+                        <h3 style="margin-top: 16px; color: #1a1a2e;">Ready to hunt some subscriptions?</h3>
+                        <p style="margin-top: 8px; color: #6c757d;">Click the scan button above to analyze your emails.</p>
+                    </div>
+                `;
+                updateStats(0, 0, 0);
                 return;
             }
             
-            subs.forEach(sub => {
+            subs.forEach((sub, index) => {
                 totalMonthly += sub.amount;
                 const row = tbody.insertRow();
-                
-                // Get display amount (original + conversion)
-                let originalDisplay = sub.displayAmount || `R${sub.amount.toFixed(2)}`;
-                let zarDisplay = `R${sub.amount.toFixed(2)}`;
-                
-                // Use subscription name instead of merchant domain
+                row.style.setProperty('--index', index);
                 const displayName = sub.name || sub.merchant.split('.')[0].charAt(0).toUpperCase() + sub.merchant.split('.')[0].slice(1);
+                const originalDisplay = sub.displayAmount || `R${sub.amount.toFixed(2)}`;
                 
                 row.innerHTML = `
                     <td>
-                        <strong>${displayName}</strong>
-                        <div class="merchant-domain">${sub.merchant}</div>
+                        <div class="sub-name">
+                            <i class="fas fa-dragon"></i> ${displayName}
+                        </div>
+                        <div class="sub-domain">${sub.merchant}</div>
                     </td>
-                    <td>${originalDisplay}</td>
-                    <td><strong>${zarDisplay}</strong> <span class="badge-zar">ZAR</span></td>
-                    <td><span class="badge">${sub.count}x</span></td>
-                    <td><a href="${sub.cancelUrl}" target="_blank" class="cancel-link">🚫 Cancel →</a></td>
+                    <td style="color: #495057;">${originalDisplay}</td>
+                    <td><strong style="color: #1a1a2e;">R${sub.amount.toFixed(2)}</strong> <span class="badge-zar">ZAR</span></td>
+                    <td><span class="badge">${sub.count}x monthly</span></td>
+                    <td><a href="${sub.cancelUrl}" target="_blank" class="cancel-btn"><i class="fas fa-skull-crossbones"></i> Cancel</a></td>
                 `;
             });
             
-            // Calculate annual waste
-            const annualWaste = totalMonthly * 12;
             const expensive = [...subs].sort((a,b) => b.amount - a.amount).slice(0, 2);
+            const potentialSavings = expensive.reduce((sum, s) => sum + s.amount, 0);
             
-            const suggestionsDiv = document.getElementById('suggestions');
-            suggestionsDiv.innerHTML = `
-                <div style="text-align: center;">
-                    <p style="font-size: 18px;">💰 You're spending <span class="savings-highlight">R${totalMonthly.toFixed(2)}/month</span></p>
-                    <p>📅 That's <strong>R${annualWaste.toFixed(2)}/year</strong> on ${subs.length} subscription${subs.length > 1 ? 's' : ''}</p>
-                    <hr style="margin: 15px 0; border-color: #333;">
-                    <p>🎯 <strong>Quick Savings Opportunity:</strong></p>
-                    <p>Cancel <strong>${expensive.map(s => s.name || s.merchant).join(' or ')}</strong> to save ~<strong style="color: #00b894;">R${expensive[0]?.amount || 0}/month</strong> (R${((expensive[0]?.amount || 0) * 12).toFixed(2)}/year)</p>
-                    ${expensive[1] ? `<p>💪 Cancel both and save <strong style="color: #00b894;">R${(expensive[0]?.amount + expensive[1]?.amount).toFixed(2)}/month</strong>!</p>` : ''}
+            updateStats(subs.length, totalMonthly, potentialSavings);
+            
+            document.getElementById('suggestionsCard').innerHTML = `
+                <div class="suggestions-card" style="animation: glowPulse 2s ease-in-out infinite;">
+                    <i class="fas fa-lightbulb" style="font-size: 2.5rem; margin-bottom: 16px; color: #ffd700;"></i>
+                    <h3 style="margin-bottom: 16px;">💡 AI-Powered Cancellation Suggestions</h3>
+                    <p style="font-size: 1.2rem; font-weight: 600;">Cancel <strong style="color: #ffd700;">${expensive.map(s => s.name || s.merchant).join(' & ')}</strong> to save <strong style="color: #00ffcc;">R${potentialSavings.toFixed(2)}/month</strong></p>
+                    <p style="margin-top: 16px; opacity: 0.9;">That's <strong>R${(potentialSavings * 12).toFixed(2)}/year</strong> back in your pocket!</p>
+                    <div style="margin-top: 24px;">
+                        <i class="fas fa-fire"></i> Stop the money leak today <i class="fas fa-fire"></i>
+                    </div>
                 </div>
             `;
             
             document.getElementById('refreshBtn').onclick = scanEmails;
-            document.getElementById('savingsCard').style.display = 'block';
         }
 
-        // Auto-load on page ready
+        function updateStats(count, monthly, savings) {
+            const totalSubsEl = document.getElementById('totalSubs');
+            const monthlySpendEl = document.getElementById('monthlySpend');
+            const potentialSavingsEl = document.getElementById('potentialSavings');
+            
+            animateValue(totalSubsEl, 0, count, 800);
+            animateValue(monthlySpendEl, 0, monthly, 800);
+            animateValue(potentialSavingsEl, 0, savings, 800);
+        }
+
         loadSubscriptions();
     </script>
 </body>
