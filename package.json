@@ -1,26 +1,19 @@
 {
   "name": "monthly-menace",
   "version": "1.0.0",
-  "description": "> Your wallet's worst nightmare — automatically find, track, and cancel hidden subscriptions lurking in your inbox.",
-  "main": "index.js",
+  "description": "💰👿 Monthly Money Menace - Auto-discover subscriptions from emails & suggest cancellations",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/theboyDC/monthly-menace.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/theboyDC/monthly-menace/issues"
-  },
-  "homepage": "https://github.com/theboyDC/monthly-menace#readme",
+  "keywords": ["subscription", "tracker", "gmail", "cancellation", "hackathon"],
+  "author": "Your Name",
+  "license": "MIT",
   "dependencies": {
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "googleapis": "^173.0.0"
+    "express": "^4.18.2",
+    "googleapis": "^128.0.0",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5"
   }
 }

@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monthly Money Menace - Track & Cancel Subscriptions</title>
+    <title>💰👿 Monthly Money Menace - Track & Cancel Subscriptions</title>
     <style>
         * { font-family: system-ui, -apple-system, sans-serif; }
         body { max-width: 1200px; margin: 0 auto; padding: 20px; background: #1a1a2e; color: white; }
         .card { background: #16213e; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
         button { background: #e94560; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 16px; transition: all 0.3s; }
         button:hover { background: #ff6b6b; transform: scale(1.02); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; }
         .badge { background: #e94560; padding: 4px 8px; border-radius: 20px; font-size: 12px; }
         .badge-zar { background: #00b894; padding: 4px 8px; border-radius: 20px; font-size: 11px; margin-left: 8px; }
-        .cancel-link { color: #ff9f43; text-decoration: none; font-weight: bold; }
-        .cancel-link:hover { text-decoration: underline; color: #ff6348; }
+        .cancel-link { background: #dc3545; color: white; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; transition: all 0.3s; display: inline-block; }
+        .cancel-link:hover { background: #c82333; transform: scale(1.02); text-decoration: none; }
         .login-btn { background: #4285f4; font-size: 20px; padding: 12px 30px; text-decoration: none; color: white; border-radius: 8px; display: inline-block; transition: all 0.3s; }
         .login-btn:hover { background: #5a9cff; transform: scale(1.02); }
         .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #fff; border-radius: 50%; border-top-color: #e94560; animation: spin 0.8s linear infinite; margin-right: 10px; vertical-align: middle; }
@@ -24,16 +25,18 @@
         .currency-note { background: #0f3460; padding: 10px; border-radius: 8px; font-size: 12px; margin-top: 20px; text-align: center; }
         h1 { margin: 0; font-size: 2em; }
         .sub-header { color: #a0a0a0; margin-top: 5px; }
+        .merchant-domain { font-size: 11px; color: #888; margin-top: 4px; }
         @media (max-width: 768px) {
             body { padding: 10px; }
             table { font-size: 12px; }
             th, td { padding: 8px; }
+            .cancel-link { padding: 4px 8px; font-size: 11px; }
         }
     </style>
 </head>
 <body>
     <div class="card" style="text-align: center;">
-        <h1>Monthly Money Menace</h1>
+        <h1>💰👿 Monthly Money Menace</h1>
         <p class="sub-header">Find hidden subscriptions hiding in your inbox | All currencies converted to Rands (ZAR)</p>
         
         <div id="auth-section">
@@ -52,7 +55,7 @@
                 <table id="subsTable">
                     <thead>
                         <tr>
-                            <th>Merchant</th>
+                            <th>Subscription</th>
                             <th>Original Amount</th>
                             <th>In ZAR (Rands)</th>
                             <th>Occurrences</th>
@@ -140,12 +143,18 @@
                 let originalDisplay = sub.displayAmount || `R${sub.amount.toFixed(2)}`;
                 let zarDisplay = `R${sub.amount.toFixed(2)}`;
                 
+                // Use subscription name instead of merchant domain
+                const displayName = sub.name || sub.merchant.split('.')[0].charAt(0).toUpperCase() + sub.merchant.split('.')[0].slice(1);
+                
                 row.innerHTML = `
-                    <td><strong>${sub.merchant}</strong></td>
+                    <td>
+                        <strong>${displayName}</strong>
+                        <div class="merchant-domain">${sub.merchant}</div>
+                    </td>
                     <td>${originalDisplay}</td>
                     <td><strong>${zarDisplay}</strong> <span class="badge-zar">ZAR</span></td>
                     <td><span class="badge">${sub.count}x</span></td>
-                    <td><a href="https://${sub.merchant}/account" target="_blank" class="cancel-link">🔗 Cancel →</a></td>
+                    <td><a href="${sub.cancelUrl}" target="_blank" class="cancel-link">🚫 Cancel →</a></td>
                 `;
             });
             
@@ -160,7 +169,7 @@
                     <p>📅 That's <strong>R${annualWaste.toFixed(2)}/year</strong> on ${subs.length} subscription${subs.length > 1 ? 's' : ''}</p>
                     <hr style="margin: 15px 0; border-color: #333;">
                     <p>🎯 <strong>Quick Savings Opportunity:</strong></p>
-                    <p>Cancel <strong>${expensive.map(s => s.merchant).join(' or ')}</strong> to save ~<strong style="color: #00b894;">R${expensive[0]?.amount || 0}/month</strong> (R${((expensive[0]?.amount || 0) * 12).toFixed(2)}/year)</p>
+                    <p>Cancel <strong>${expensive.map(s => s.name || s.merchant).join(' or ')}</strong> to save ~<strong style="color: #00b894;">R${expensive[0]?.amount || 0}/month</strong> (R${((expensive[0]?.amount || 0) * 12).toFixed(2)}/year)</p>
                     ${expensive[1] ? `<p>💪 Cancel both and save <strong style="color: #00b894;">R${(expensive[0]?.amount + expensive[1]?.amount).toFixed(2)}/month</strong>!</p>` : ''}
                 </div>
             `;

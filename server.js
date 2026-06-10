@@ -19,6 +19,123 @@ const EXCHANGE_RATES = {
   'YER': 0.074,  // 1 YER = 0.074 ZAR (Yemen Riyal)
 };
 
+// Subscription name mapping (domain -> display name & cancellation URL)
+const SUBSCRIPTION_DB = {
+  'netflix.com': {
+    name: 'Netflix',
+    cancelUrl: 'https://www.netflix.com/YourAccount'
+  },
+  'spotify.com': {
+    name: 'Spotify',
+    cancelUrl: 'https://www.spotify.com/account/subscription/'
+  },
+  'amazon.com': {
+    name: 'Amazon Prime',
+    cancelUrl: 'https://www.amazon.com/gp/subscribe-and-save'
+  },
+  'disneyplus.com': {
+    name: 'Disney+',
+    cancelUrl: 'https://www.disneyplus.com/subscription'
+  },
+  'hbo.com': {
+    name: 'HBO Max',
+    cancelUrl: 'https://www.hbomax.com/account'
+  },
+  'apple.com': {
+    name: 'Apple',
+    cancelUrl: 'https://appleid.apple.com/account/manage'
+  },
+  'microsoft.com': {
+    name: 'Microsoft',
+    cancelUrl: 'https://account.microsoft.com/services'
+  },
+  'google.com': {
+    name: 'Google',
+    cancelUrl: 'https://myaccount.google.com/subscriptions'
+  },
+  'youtube.com': {
+    name: 'YouTube Premium',
+    cancelUrl: 'https://www.youtube.com/paid_memberships'
+  },
+  'showmax.com': {
+    name: 'Showmax',
+    cancelUrl: 'https://www.showmax.com/eng/account'
+  },
+  'multichoice.co.za': {
+    name: 'DStv',
+    cancelUrl: 'https://selfservice.dstv.com/'
+  },
+  'takealot.com': {
+    name: 'Takealot',
+    cancelUrl: 'https://www.takealot.com/account'
+  },
+  'gym-membership.co.za': {
+    name: 'Gym Membership',
+    cancelUrl: 'https://example.com/cancel'
+  },
+  'primevideo.com': {
+    name: 'Prime Video',
+    cancelUrl: 'https://www.amazon.com/gp/video/settings'
+  },
+  'hulu.com': {
+    name: 'Hulu',
+    cancelUrl: 'https://hulu.com/account'
+  },
+  'paramountplus.com': {
+    name: 'Paramount+',
+    cancelUrl: 'https://www.paramountplus.com/account/'
+  },
+  'peacocktv.com': {
+    name: 'Peacock',
+    cancelUrl: 'https://www.peacocktv.com/account'
+  },
+  'dropbox.com': {
+    name: 'Dropbox',
+    cancelUrl: 'https://www.dropbox.com/account/plan'
+  },
+  'icloud.com': {
+    name: 'iCloud',
+    cancelUrl: 'https://appleid.apple.com/account/manage'
+  },
+  'adobe.com': {
+    name: 'Adobe Creative Cloud',
+    cancelUrl: 'https://account.adobe.com/plans'
+  },
+  'canva.com': {
+    name: 'Canva',
+    cancelUrl: 'https://www.canva.com/account/subscription'
+  },
+  'slack.com': {
+    name: 'Slack',
+    cancelUrl: 'https://my.slack.com/account/billing'
+  },
+  'zoom.us': {
+    name: 'Zoom',
+    cancelUrl: 'https://zoom.us/billing'
+  }
+};
+
+// Function to get subscription info
+function getSubscriptionInfo(domain) {
+  // Try exact match first
+  if (SUBSCRIPTION_DB[domain]) {
+    return SUBSCRIPTION_DB[domain];
+  }
+  
+  // Try partial match
+  for (const [key, value] of Object.entries(SUBSCRIPTION_DB)) {
+    if (domain.includes(key.split('.')[0])) {
+      return value;
+    }
+  }
+  
+  // Default fallback
+  return {
+    name: domain.split('.')[0].charAt(0).toUpperCase() + domain.split('.')[0].slice(1),
+    cancelUrl: `https://${domain}/account`
+  };
+}
+
 // Detect currency from symbol
 function detectCurrency(amountStr) {
   if (amountStr.startsWith('$')) return { currency: 'USD', symbol: '$' };
@@ -157,10 +274,15 @@ async function scanEmails() {
     const domainMatch = fromHeader?.value?.match(/@([a-zA-Z0-9\-]+\.[a-zA-Z]{2,})/);
     const merchant = domainMatch ? domainMatch[1] : 'Unknown';
     
+    // Get subscription info
+    const subInfo = getSubscriptionInfo(merchant);
+    
     // Group by merchant
     if (!subscriptions[merchant]) {
       subscriptions[merchant] = { 
         merchant, 
+        name: subInfo.name,
+        cancelUrl: subInfo.cancelUrl,
         amount: zarAmount, 
         displayAmount,
         originalCurrency: currency,
@@ -173,7 +295,16 @@ async function scanEmails() {
   }
   
   // Filter to merchants with 2+ occurrences (recurring)
-  const recurring = Object.values(subscriptions).filter(s => s.count >= 2);
+  const recurring = Object.values(subscriptions).filter(s => s.count >= 2)
+    .map(s => ({
+      merchant: s.merchant,
+      name: s.name,
+      cancelUrl: s.cancelUrl,
+      amount: s.amount,
+      displayAmount: s.displayAmount,
+      originalCurrency: s.originalCurrency,
+      count: s.count
+    }));
   
   // Save to JSON file
   fs.writeFileSync(SUBS_FILE, JSON.stringify(recurring, null, 2));
@@ -199,4 +330,5 @@ app.listen(3000, () => {
   console.log('🔥 Monthly Money Menace running at http://localhost:3000');
   console.log('👉 Visit http://localhost:3000');
   console.log('💰 Currency: All amounts converted to ZAR (Rands)');
+  console.log('📋 Subscription names and cancel URLs loaded');
 });

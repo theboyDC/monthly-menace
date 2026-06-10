@@ -1,6 +1,8 @@
 [
   {
     "merchant": "netflix.com",
+    "name": "Netflix",
+    "cancelUrl": "https://www.netflix.com/YourAccount",
     "amount": 295.82,
     "displayAmount": "$15.99 (≈ R295.82)",
     "originalCurrency": "USD",
@@ -8,20 +10,17 @@
   },
   {
     "merchant": "spotify.com",
+    "name": "Spotify",
+    "cancelUrl": "https://www.spotify.com/account/subscription/",
     "amount": 139.98,
     "displayAmount": "€6.99 (≈ R139.98)",
     "originalCurrency": "EUR",
     "count": 2
   },
   {
-    "merchant": "yemen-mobile.ye",
-    "amount": 370.00,
-    "displayAmount": "5000 YER (≈ R370.00)",
-    "originalCurrency": "YER",
-    "count": 4
-  },
-  {
     "merchant": "showmax.com",
+    "name": "Showmax",
+    "cancelUrl": "https://www.showmax.com/eng/account",
     "amount": 99.99,
     "displayAmount": "R99.99",
     "originalCurrency": "ZAR",
@@ -29,6 +28,8 @@
   },
   {
     "merchant": "gym-membership.co.za",
+    "name": "Gym Membership",
+    "cancelUrl": "https://example.com/cancel",
     "amount": 499.99,
     "displayAmount": "R499.99",
     "originalCurrency": "ZAR",
