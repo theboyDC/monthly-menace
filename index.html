@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰👿 Monthly Money Menace - Track & Cancel Subscriptions</title>
+    <style>
+        * { font-family: system-ui, -apple-system, sans-serif; }
+        body { max-width: 1200px; margin: 0 auto; padding: 20px; background: #1a1a2e; color: white; }
+        .card { background: #16213e; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        button { background: #e94560; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 16px; transition: all 0.3s; }
+        button:hover { background: #ff6b6b; transform: scale(1.02); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; }
+        .badge { background: #e94560; padding: 4px 8px; border-radius: 20px; font-size: 12px; }
+        .badge-zar { background: #00b894; padding: 4px 8px; border-radius: 20px; font-size: 11px; margin-left: 8px; }
+        .cancel-link { color: #ff9f43; text-decoration: none; font-weight: bold; }
+        .cancel-link:hover { text-decoration: underline; color: #ff6348; }
+        .login-btn { background: #4285f4; font-size: 20px; padding: 12px 30px; text-decoration: none; color: white; border-radius: 8px; display: inline-block; transition: all 0.3s; }
+        .login-btn:hover { background: #5a9cff; transform: scale(1.02); }
+        .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #fff; border-radius: 50%; border-top-color: #e94560; animation: spin 0.8s linear infinite; margin-right: 10px; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .savings-highlight { color: #00b894; font-size: 24px; font-weight: bold; }
+        .currency-note { background: #0f3460; padding: 10px; border-radius: 8px; font-size: 12px; margin-top: 20px; text-align: center; }
+        h1 { margin: 0; font-size: 2em; }
+        .sub-header { color: #a0a0a0; margin-top: 5px; }
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            table { font-size: 12px; }
+            th, td { padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="card" style="text-align: center;">
+        <h1>💰👿 Monthly Money Menace</h1>
+        <p class="sub-header">Find hidden subscriptions hiding in your inbox | All currencies converted to Rands (ZAR)</p>
+        
+        <div id="auth-section">
+            <a href="/auth" class="login-btn">🔐 Login with Google</a>
+        </div>
+    </div>
+
+    <div id="dashboard" style="display: none;">
+        <div class="card">
+            <h2>📊 Your Subscriptions</h2>
+            <button id="refreshBtn">🔄 Scan Again</button>
+            <div id="loading" style="display: none; margin-top: 10px;">
+                <span class="loading-spinner"></span> Scanning your emails...
+            </div>
+            <div style="overflow-x: auto;">
+                <table id="subsTable">
+                    <thead>
+                        <tr>
+                            <th>Merchant</th>
+                            <th>Original Amount</th>
+                            <th>In ZAR (Rands)</th>
+                            <th>Occurrences</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subsBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card" id="savingsCard">
+            <h3>💡 Smart Cancellation Suggestions</h3>
+            <div id="suggestions"></div>
+        </div>
+
+        <div class="currency-note">
+            🌍 <strong>Currency Converter</strong> | USD (R18.50) | EUR (R20.00) | GBP (R23.50) | YER (R0.074) | All amounts shown in South African Rands (ZAR)
+        </div>
+    </div>
+
+    <script>
+        async function loadSubscriptions() {
+            const res = await fetch('/api/subscriptions');
+            const subs = await res.json();
+            
+            if (subs.length > 0) {
+                document.getElementById('auth-section').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                renderSubscriptions(subs);
+            } else if (window.location.search.includes('success')) {
+                document.getElementById('auth-section').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                await scanEmails();
+            } else {
+                // Check if we have any subscriptions file
+                if (subs.length === 0 && !window.location.search.includes('success')) {
+                    // Still show dashboard but with empty state
+                    document.getElementById('auth-section').style.display = 'none';
+                    document.getElementById('dashboard').style.display = 'block';
+                    renderSubscriptions(subs);
+                }
+            }
+        }
+
+        async function scanEmails() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('refreshBtn').disabled = true;
+            try {
+                const res = await fetch('/api/scan', { method: 'POST' });
+                const subs = await res.json();
+                renderSubscriptions(subs);
+            } catch (error) {
+                console.error('Scan error:', error);
+                alert('Error scanning emails. Please try again.');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('refreshBtn').disabled = false;
+            }
+        }
+
+        function renderSubscriptions(subs) {
+            const tbody = document.getElementById('subsBody');
+            tbody.innerHTML = '';
+            
+            let totalMonthly = 0;
+            
+            if (subs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">✨ No subscriptions found yet. Click "Scan Again" to check your emails! ✨</td></tr>';
+                const suggestionsDiv = document.getElementById('suggestions');
+                suggestionsDiv.innerHTML = `
+                    <p>📭 No active subscriptions detected yet.</p>
+                    <p>💡 <strong>Tip:</strong> Send yourself a test receipt email or scan again after making a subscription payment.</p>
+                    <p>🔍 Make sure you have emails containing words like "receipt", "invoice", "monthly", or "subscription".</p>
+                `;
+                document.getElementById('savingsCard').style.display = 'block';
+                return;
+            }
+            
+            subs.forEach(sub => {
+                totalMonthly += sub.amount;
+                const row = tbody.insertRow();
+                
+                // Get display amount (original + conversion)
+                let originalDisplay = sub.displayAmount || `R${sub.amount.toFixed(2)}`;
+                let zarDisplay = `R${sub.amount.toFixed(2)}`;
+                
+                row.innerHTML = `
+                    <td><strong>${sub.merchant}</strong></td>
+                    <td>${originalDisplay}</td>
+                    <td><strong>${zarDisplay}</strong> <span class="badge-zar">ZAR</span></td>
+                    <td><span class="badge">${sub.count}x</span></td>
+                    <td><a href="https://${sub.merchant}/account" target="_blank" class="cancel-link">🔗 Cancel →</a></td>
+                `;
+            });
+            
+            // Calculate annual waste
+            const annualWaste = totalMonthly * 12;
+            const expensive = [...subs].sort((a,b) => b.amount - a.amount).slice(0, 2);
+            
+            const suggestionsDiv = document.getElementById('suggestions');
+            suggestionsDiv.innerHTML = `
+                <div style="text-align: center;">
+                    <p style="font-size: 18px;">💰 You're spending <span class="savings-highlight">R${totalMonthly.toFixed(2)}/month</span></p>
+                    <p>📅 That's <strong>R${annualWaste.toFixed(2)}/year</strong> on ${subs.length} subscription${subs.length > 1 ? 's' : ''}</p>
+                    <hr style="margin: 15px 0; border-color: #333;">
+                    <p>🎯 <strong>Quick Savings Opportunity:</strong></p>
+                    <p>Cancel <strong>${expensive.map(s => s.merchant).join(' or ')}</strong> to save ~<strong style="color: #00b894;">R${expensive[0]?.amount || 0}/month</strong> (R${((expensive[0]?.amount || 0) * 12).toFixed(2)}/year)</p>
+                    ${expensive[1] ? `<p>💪 Cancel both and save <strong style="color: #00b894;">R${(expensive[0]?.amount + expensive[1]?.amount).toFixed(2)}/month</strong>!</p>` : ''}
+                </div>
+            `;
+            
+            document.getElementById('refreshBtn').onclick = scanEmails;
+            document.getElementById('savingsCard').style.display = 'block';
+        }
+
+        // Auto-load on page ready
+        loadSubscriptions();
+    </script>
+</body>
+</html>

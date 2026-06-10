@@ -1,0 +1,37 @@
+[
+  {
+    "merchant": "netflix.com",
+    "amount": 295.82,
+    "displayAmount": "$15.99 (≈ R295.82)",
+    "originalCurrency": "USD",
+    "count": 3
+  },
+  {
+    "merchant": "spotify.com",
+    "amount": 139.98,
+    "displayAmount": "€6.99 (≈ R139.98)",
+    "originalCurrency": "EUR",
+    "count": 2
+  },
+  {
+    "merchant": "yemen-mobile.ye",
+    "amount": 370.00,
+    "displayAmount": "5000 YER (≈ R370.00)",
+    "originalCurrency": "YER",
+    "count": 4
+  },
+  {
+    "merchant": "showmax.com",
+    "amount": 99.99,
+    "displayAmount": "R99.99",
+    "originalCurrency": "ZAR",
+    "count": 2
+  },
+  {
+    "merchant": "gym-membership.co.za",
+    "amount": 499.99,
+    "displayAmount": "R499.99",
+    "originalCurrency": "ZAR",
+    "count": 6
+  }
+]

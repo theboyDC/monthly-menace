@@ -70,3 +70,8 @@ npm run dev
 cd ../frontend
 npm install
 npm run dev
+
+
+client ID: 161334600762-gi1thbr8dqgl3rv6m6re7huig9e3rct2.apps.googleusercontent.com
+
+clinet secret : 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
